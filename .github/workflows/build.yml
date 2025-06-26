@@ -1,0 +1,29 @@
+name: ESP32 Build
+
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        idf_version: [v5.1]  # change this to match your ESP-IDF version
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up ESP-IDF
+      uses: espressif/setup-esp-idf@v1
+      with:
+        version: ${{ matrix.idf_version }}
+
+    - name: Build project
+      run: |
+        idf.py set-target esp32
+        idf.py build
