@@ -4,14 +4,16 @@ config MQTT_BROKER_URI
     help
         URI of the MQTT broker to connect to
 
+config MQTT_USE_AUTH
+    bool "Use MQTT authentication"
+    default n
+
 config MQTT_USERNAME
     string "MQTT Username"
-    default "User"
     help
         MQTT broker username (optional)
 
 config MQTT_PASSWORD
     string "MQTT Password"
-    default "Password"
     help
         MQTT broker password (optional)

@@ -8,8 +8,8 @@ static esp_mqtt_client_handle_t client = NULL;
 
 
 // TODO: Perhaps we log the connected or disconnected state on the display?
-static esp_err_t mqttEventHandlerCB(esp_mqtt_event_handle_t event) {
-    switch (event->event_id) {
+static void mqttEventHandlerCB(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data) {
+    switch (event_id) {
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI(TAG, "Connected to MQTT broker");
             break;
@@ -19,29 +19,22 @@ static esp_err_t mqttEventHandlerCB(esp_mqtt_event_handle_t event) {
             break;
 
         case MQTT_EVENT_DATA:
-            ESP_LOGI(TAG, "Received data on topic %.*s", event->topic_len, event->topic);
+            ESP_LOGI(TAG, "Received data on topic %.*s", event_data);
             // TODO: Here we handle incoming mqtt messages
             break;
 
         default:
             break;
     }
-    return ESP_OK;
 }
 
 void startupMQTT(void) {
     // only provide username and password if they are set in the config
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = CONFIG_MQTT_BROKER_URI,
-#if CONFIG_MQTT_USERNAME != ""
-        .username = CONFIG_MQTT_USERNAME,
-#else
-        .credentials.username = NULL,
-#endif
-#if CONFIG_MQTT_PASSWORD != ""
-        .password = CONFIG_MQTT_PASSWORD,
-#else
-        .password = NULL,
+#ifdef MQTT_USE_AUTH
+        .credentials.username = CONFIG_MQTT_USERNAME,
+        .credentials.authentication.password = CONFIG_MQTT_PASSWORD
 #endif
     };
 
