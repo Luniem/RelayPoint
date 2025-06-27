@@ -8,7 +8,15 @@
   "idf.portWin": "COM4",
   "idf.toolsPathWin": "C:\\Users\\nicok\\.espressif",
   "idf.customExtraVars": {
+    "OPENOCD_SCRIPTS": "C:\\Users\\nicok\\.espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20241016/openocd-esp32/share/openocd/scripts",
+    "IDF_CCACHE_ENABLE": "1",
+    "ESP_ROM_ELF_DIR": "C:\\Users\\nicok\\.espressif\\tools\\esp-rom-elfs\\20240305/",
     "IDF_TARGET": "esp32c3"
   },
-  "idf.flashType": "UART"
+  "idf.flashType": "UART",
+  "files.associations": {
+    "mqtt_handler.h": "c",
+    "mqtt_client.h": "c",
+    "esp_log.h": "c"
+  }
 }
