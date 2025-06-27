@@ -2,6 +2,7 @@
 #include "esp_log.h"
 
 #include "esp_wifi.h"
+#include "freertos/event_groups.h"
 #include "nvs_flash.h"
 
 #define ESP_WIFI_SSID      CONFIG_WIFI_SSID
@@ -17,7 +18,6 @@ static const char *TAG = "WiFi-Handler";
 static EventGroupHandle_t s_wifi_event_group;
 
 static int currRetryNum = 0;
-
 
 // Wi-Fi stack relies on initialized non-volatile-storage
 static void initNVSFlash() {
