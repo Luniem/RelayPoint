@@ -1,0 +1,17 @@
+config WIFI_SSID
+    string "WIFI SSID"
+    default ""
+    help
+        SSID of the AP connecting to
+
+config WIFI_PASSWORD
+    string "WIFI password"
+    default ""
+    help
+        Password of the AP connecting to
+
+config WIFI_MAXIMUM_RETRY
+    int "WIFI maximum retries"
+    default 3
+    help
+        How often should be tried to reconnect to the AP
