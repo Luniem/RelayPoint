@@ -2,7 +2,7 @@
 #include "esp_log.h"
 #include "sdkconfig.h"
 
-static const char *TAG = "MQTT";
+static const char *TAG = "MQTT-Handler";
 
 static esp_mqtt_client_handle_t client = NULL;
 
@@ -19,7 +19,8 @@ static void mqttEventHandlerCB(void *handler_args, esp_event_base_t base, int32_
             break;
 
         case MQTT_EVENT_DATA:
-            ESP_LOGI(TAG, "Received data on topic %s", event_data);
+            const char *str = (const char *)event_data;
+            ESP_LOGI(TAG, "Received data on topic %s", str);
             // TODO: Here we handle incoming mqtt messages
             break;
 
