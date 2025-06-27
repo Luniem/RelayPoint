@@ -19,7 +19,7 @@ static void mqttEventHandlerCB(void *handler_args, esp_event_base_t base, int32_
             break;
 
         case MQTT_EVENT_DATA:
-            ESP_LOGI(TAG, "Received data on topic %.*s", event_data);
+            ESP_LOGI(TAG, "Received data on topic %s", event_data);
             // TODO: Here we handle incoming mqtt messages
             break;
 
