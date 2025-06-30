@@ -3,5 +3,6 @@
 
 void initStatusLED();
 void toggleStatusLED();
+void receiveMQTTStatusLEDCommand(const char *data);
 
 #endif

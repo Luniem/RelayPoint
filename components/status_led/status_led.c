@@ -9,8 +9,6 @@
 
 static const char *TAG = "Status LED";
 
-#define MQTT_STATUS_LED_TOPIC "status_led/state"
-
 static bool currentStatusLEDState = false; // default state is off
 
 void writeMQTTStatusLED(int statusLEDState) {
@@ -40,4 +38,15 @@ void initStatusLED() {
     gpio_config(&statusLEDConf);
     
     writeStatusLED(currentStatusLEDState); // Initialize the LED to the default state
+}
+
+// receive null terminated string data from MQTT and set the status LED accordingly
+void receiveMQTTStatusLEDCommand(const char *data) {
+    if (strcmp(data, "ON") == 0) {
+        writeStatusLED(true);
+    } else if (strcmp(data, "OFF") == 0) {
+        writeStatusLED(false);
+    } else {
+        ESP_LOGW(TAG, "Received unknown command for Status LED: %s", data);
+    }
 }
