@@ -19,7 +19,7 @@ static void IRAM_ATTR gpioISRHandler(void* arg) {
     xQueueSendFromISR(gpioLeftEventQueue, &gpioNum, NULL);
 }
 
-static void button_task(void* arg) {
+static void buttonTask(void* arg) {
     int gpioNum;
     while (1) {
         if (xQueueReceive(gpioLeftEventQueue, &gpioNum, portMAX_DELAY)) {
@@ -49,7 +49,7 @@ void initLeftButtonHandler(button_callback_t callback) {
     gpio_config(&io_conf);
 
     gpioLeftEventQueue = xQueueCreate(10, sizeof(uint32_t));
-    xTaskCreate(button_task, "button_task", 2048, NULL, 10, NULL);
+    xTaskCreate(buttonTask, "buttonTask", 2048, NULL, 10, NULL);
 
     gpio_isr_handler_add(LEFT_BUTTON_GPIO, gpioISRHandler, (void*) LEFT_BUTTON_GPIO);
 }
