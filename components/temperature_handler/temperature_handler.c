@@ -12,6 +12,24 @@
 
 static const char *TAG = "TempHandler";
 
+uint8_t calculateChecksum(uint8_t *data, size_t len) {
+    uint8_t crc = 0xFF;
+
+    for (size_t i = 0; i < len; i++) {
+        crc ^= data[i];
+        for (int j = 0; j < 8; j++) {
+            if (crc & 0x80) {
+                crc = (crc << 1) ^ 0x31;
+            }
+            else {
+                crc <<= 1;
+            }
+        }
+    }
+
+    return crc;
+}
+
 void wakeUpSensor() {
     // values read from the datasheet
     uint8_t buf[32] =  {0x35, 0x17};
@@ -25,15 +43,19 @@ void sleepSensor() {
 }
 
 void readAndWriteTemperatureAndHumidity() {
-    uint8_t data[6];
+    uint8_t *data = heap_caps_malloc(6, MALLOC_CAP_8BIT);
+    if (!data) {
+        ESP_LOGE(TAG, "Failed to allocate I2C buffer");
+        return;
+    }
     uint8_t buf[2] = {0x58, 0xE0};
 
     // tell sensor to read temperature and humidity - with humidty first
-    ESP_ERROR_CHECK(i2c_master_write_to_device(I2C_NUM_0, 0x70, buf, 2, pdMS_TO_TICKS(50)));
+    ESP_ERROR_CHECK(i2c_master_write_to_device(I2C_NUM_0, TEMPERATURE_SENSOR_I2C_ADDRESS, buf, 2, pdMS_TO_TICKS(50)));
 
     while (1) {
-        vTaskDelay(pdMS_TO_TICKS(50));
-        esp_err_t err = i2c_master_read_from_device(I2C_NUM_0, 0x70, data, 6, pdMS_TO_TICKS(50));
+        vTaskDelay(pdMS_TO_TICKS(100));
+        esp_err_t err = i2c_master_read_from_device(I2C_NUM_0, TEMPERATURE_SENSOR_I2C_ADDRESS, data, 6, pdMS_TO_TICKS(50));
 
         if (err == ESP_OK) {
             break;
@@ -42,14 +64,22 @@ void readAndWriteTemperatureAndHumidity() {
         }
     }
 
+    if (calculateChecksum(&data[0], 2) != data[2]) {
+        ESP_LOGE(TAG, "CRC check failed for humidity");
+        return;
+    }
+
+    if (calculateChecksum(&data[3], 2) != data[5]) {
+        ESP_LOGE(TAG, "CRC check failed for temperature");
+        return;
+    }
+
     uint16_t rh = data[0] << 8 | data[1];
     uint16_t temp = data[3] << 8 | data[4];
 
-    // TODO: use the CRC to check the data integrity
-
     // calculate relative humidity and temperature like described in the datasheet
-    float_t calc_rhd = (float)rh / (1 << 16) * (float)100;
-    float_t calc_temp = (float)temp / (1 << 16) * (float)175 - (float)45;
+    float_t calc_rhd = 100.0f * ((float)rh / 65536.0f);
+    float_t calc_temp = -45.0f + 175.0f * ((float)temp / 65536.0f);
 
     ESP_LOGI(TAG, "Read Relative Humidity: %.2f %%", calc_rhd);
     ESP_LOGI(TAG, "Read Temperature: %.2f °C", calc_temp);
@@ -61,6 +91,7 @@ void readAndWriteTemperatureAndHumidity() {
     
     mqttPublishText(MQTT_TEMPERATURE_TOPIC, tempPayload);
     mqttPublishText(MQTT_HUMIDITY_TOPIC, humidityPayload);
+    free(data);
 }
 
 static void temperatureTask(void *arg) {
@@ -88,6 +119,6 @@ void initTemperatureHandler() {
     ESP_ERROR_CHECK(i2c_driver_install(I2C_NUM_0, conf.mode, 0, 0, 0));
 
     // read sensor periodically in a separate task
-    xTaskCreatePinnedToCore(temperatureTask, "temperatureTask", 2048, NULL, 5, NULL, 0);
+    xTaskCreatePinnedToCore(temperatureTask, "temperatureTask", 4096, NULL, 5, NULL, 0);
 }
 
