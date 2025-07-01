@@ -35,6 +35,7 @@ static void mqttEventHandlerCB(void *handler_args, esp_event_base_t base, int32_
             // subscribe to topics
             esp_mqtt_client_subscribe(client, MQTT_STATUS_LED_CMD_TOPIC, 1);
             esp_mqtt_client_subscribe(client, MQTT_LED_STRIP_BRIGHTNESS_CMD_TOPIC, 1);
+            esp_mqtt_client_subscribe(client, MQTT_LED_STRIP_MODE_CMD_TOPIC, 1);
             break;
 
         case MQTT_EVENT_DISCONNECTED:
@@ -59,6 +60,18 @@ static void mqttEventHandlerCB(void *handler_args, esp_event_base_t base, int32_
                 if (brightness >= 0 && brightness <= 255) {
                     setLEDBrightness(brightness);
                 }
+            } else if (strcmp(topic, MQTT_LED_STRIP_MODE_CMD_TOPIC) == 0) {
+                // transfer the strings "RED", "GREEN", "BLUE" to the led_mode_t enum
+                if (strcmp(data, "RED") == 0) {
+                    setLEDMode(COLOR_RED);
+                } else if (strcmp(data, "GREEN") == 0) {
+                    setLEDMode(COLOR_GREEN);
+                } else if (strcmp(data, "BLUE") == 0) {
+                    setLEDMode(COLOR_BLUE);
+                } else {
+                    ESP_LOGW(TAG, "Received unknown LED mode: %s", data);
+                }
+
             }
 
             // free the allocated memory for topic and data

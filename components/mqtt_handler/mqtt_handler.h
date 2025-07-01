@@ -9,6 +9,7 @@
 #define MQTT_HUMIDITY_TOPIC "humidity/state"
 
 #define MQTT_LED_STRIP_MODE_TOPIC "led_strip/state"
+#define MQTT_LED_STRIP_MODE_CMD_TOPIC "led_strip/set"
 #define MQTT_LED_STRIP_BRIGHTNESS_TOPIC "led_strip/brightness"
 #define MQTT_LED_STRIP_BRIGHTNESS_CMD_TOPIC "led_strip/brightness/set"
 
