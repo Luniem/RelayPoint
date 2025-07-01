@@ -58,6 +58,7 @@ void readAndWriteTemperatureAndHumidity() {
     char humidityPayload[16];
     snprintf(tempPayload, sizeof(tempPayload), "%.2f", calc_temp);
     snprintf(humidityPayload, sizeof(humidityPayload), "%.2f", calc_rhd);
+    
     mqttPublishText(MQTT_TEMPERATURE_TOPIC, tempPayload);
     mqttPublishText(MQTT_HUMIDITY_TOPIC, humidityPayload);
 }
@@ -65,7 +66,7 @@ void readAndWriteTemperatureAndHumidity() {
 static void temperatureTask(void *arg) {
     while (true) {
         wakeUpSensor();
-        vTaskDelay(pdMS_TO_TICKS(1)); // give the sensor time to wake up
+        vTaskDelay(pdMS_TO_TICKS(500)); // give the sensor time to wake up
         readAndWriteTemperatureAndHumidity();
         sleepSensor();
 

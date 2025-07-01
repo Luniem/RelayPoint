@@ -8,6 +8,12 @@
 #define MQTT_TEMPERATURE_TOPIC "temperature/state"
 #define MQTT_HUMIDITY_TOPIC "humidity/state"
 
-void startupMQTT(void);
+#define MQTT_LED_STRIP_MODE_TOPIC "led_strip/state"
+#define MQTT_LED_STRIP_BRIGHTNESS_TOPIC "led_strip/brightness"
+#define MQTT_LED_STRIP_BRIGHTNESS_CMD_TOPIC "led_strip/brightness/set"
+
+typedef void (*callback_t)(void);
+
+void startupMQTT(callback_t callback);
 void mqttPublishText(const char *topic, const char *text);
 #endif
