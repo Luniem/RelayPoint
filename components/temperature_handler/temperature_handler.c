@@ -77,8 +77,6 @@ void readAndWriteTemperatureAndHumidity() {
     uint16_t rh = data[0] << 8 | data[1];
     uint16_t temp = data[3] << 8 | data[4];
 
-    // TODO: use the CRC to check the data integrity
-
     // calculate relative humidity and temperature like described in the datasheet
     float_t calc_rhd = 100.0f * ((float)rh / 65536.0f);
     float_t calc_temp = -45.0f + 175.0f * ((float)temp / 65536.0f);
@@ -90,6 +88,7 @@ void readAndWriteTemperatureAndHumidity() {
     char humidityPayload[16];
     snprintf(tempPayload, sizeof(tempPayload), "%.2f", calc_temp);
     snprintf(humidityPayload, sizeof(humidityPayload), "%.2f", calc_rhd);
+    
     mqttPublishText(MQTT_TEMPERATURE_TOPIC, tempPayload);
     mqttPublishText(MQTT_HUMIDITY_TOPIC, humidityPayload);
     free(data);
@@ -98,7 +97,7 @@ void readAndWriteTemperatureAndHumidity() {
 static void temperatureTask(void *arg) {
     while (true) {
         wakeUpSensor();
-        vTaskDelay(pdMS_TO_TICKS(100)); // give the sensor time to wake up
+        vTaskDelay(pdMS_TO_TICKS(500)); // give the sensor time to wake up
         readAndWriteTemperatureAndHumidity();
         sleepSensor();
 
